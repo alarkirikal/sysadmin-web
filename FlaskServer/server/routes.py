@@ -1,5 +1,4 @@
-from flask import redirect, url_for
-
+# Routing
 from server import app
 from server.main import routes
 from server.course import routes
