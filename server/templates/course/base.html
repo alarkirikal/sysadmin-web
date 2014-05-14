@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block leftmenu %}
+<div style="float:left; width:250px;" class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+    <div class="list-group">
+        <a href="{{ url_for('course.students') }}" class="list-group-item">Students</a>
+        <a href="{{ url_for('course.cert_sign') }}" class="list-group-item">Cert. signing</a>
+        <hr>
+        <a href="{{ url_for('course.init_course') }}" class="list-group-item">Init course</a>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'course/base.html' %}
+{% block content %}
+
+<script type="text/javascript">
+    
+    function initValues() {
+
+        // Change text of dropdown menu
+        var url_array = document.URL.split("/")
+        var txt = url_array[url_array.length - 1].replace("_", " ").replace("spr", "Spring").replace("aut", "Autumn")
+        $('#drop4').text(txt);
+
+        // Change form URL
+        var url = document.URL.split("/")
+        var txt = url_array[url_array.length - 1];
+
+        $('#update_form').attr("action", "{{ url_for('course.students') }}/" + txt);
+    
+    }
+    
+    window.onload = initValues;
+</script>
+
+<div style="float:left;">
+<h3>Course - Students</h3>
+<hr>
+
+<div>
+<!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modal_updatestudents" style="margin-bottom:20px; float:left;">
+    Update list of students
+</button>
+
+<!-- dropdown -->
+<div class="dropdown" style="float:left; margin-top:15px; margin-left:20px;">
+    <a id="drop4" role="button" data-toggle="dropdown" href="#">Select Course<b class="caret"></b></a>
+
+    <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">
+        {% for element in menu_items %}
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="{{ url_for('course.students') }}/{{ element.val }}" onclick="changeText('{{ element.name }}')"> {{ element.name | safe }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal_updatestudents" tabindex="-1" role="dialog" aria-labelledby="updateStudentsLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="updateStudentsLabel">Upload a new list of students</h4>
+            </div>
+            <div class="modal-body">
+                <form id="update_form" enctype="multipart/form-data" action="{{ url_for('course.students') }}/" class="form-inline" style="margin-top:10px; margin-bottom:50px;" method="post" role="form">
+                    <div class="form-group" style="margin-right:20px;">
+                        <strong>Click here to upload a new .csv file from OIS</strong>
+                    </div>
+                    <div class="form-group">
+                        <input type="file" name="ois_file">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>
+    {{ message }}
+</p>
+
+
+<table class="table" style="max-width:875px;">
+    <!-- Table head -->
+    <tr>
+        <th>Course Status</th>
+        <th>SID</th>
+        <th>Name</th>
+        <th>Lastname</td>
+        <th>Group</td>
+        <th>Curriculum</td>
+        <th>UT Email</td>
+        <th>Ext Email</td>
+    </tr>
+    <!-- Table rows -->
+    {% for student in students %}
+
+    {% if student.status == "deactive" %}
+        <tr class="danger">
+    {% else %}
+        <tr>
+    {% endif %}
+
+        <td> {{ student.status }} </td>
+        <td> {{ student.sid }} </td>
+        <td> {{ student.name }} </td>
+        <td> {{ student.lastname }} </td>
+        <td> {{ student.group }} </td>
+        <td> {{ student.curriculum }} </td>
+        <td> {{ student.utemail }} </td>
+        <td> {{ student.extemail }} </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<!-- Javascript -->
+<script type="text/javascript">
+    
+    // Change course text
+    function changeText(txt)
+    {
+        $('#drop4').text(txt);
+    }
+
+
+</script>
+
+{% endblock %}

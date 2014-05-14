@@ -1,0 +1,95 @@
+{% extends 'course/base.html' %}
+{% block content %}
+<h3>Course - Cert signing progress</h3>
+
+<!-- Quick debug - for some reason jQuery doesnt get loaded -->
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+
+<!-- Javascript for initing some values -->
+<script type="text/javascript">
+    
+    function initValues() {
+        
+        // Change text of dropdown menu
+        var url_array = document.URL.split("/");
+        var txt = url_array[url_array.length - 1].replace("_", " ").replace("spr", "Spring").replace("aut", "Autumn");
+        $('#drop4').text(txt);
+    }
+
+    window.onload = initValues;
+
+</script>
+
+
+<hr>
+<div class="dropdown" style="float:left; margin-bottom:20px; margin-left:20px;">
+    <a id="drop4" role="button" data-toggle="dropdown" href="#">Select Course<b class="caret"></b></a>
+
+    <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">
+        {% for element in menu_items %}
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="{{ url_for('course.cert_sign') }}/{{ element.val }}" onclick="changeText('{{ element.name }}')"> {{ element.name | safe }}</a></li>
+        {% endfor %}
+
+    </ul>
+</div>
+
+<table class="table" style="max-width:875px;">
+    <!-- Table head -->
+    <tr>
+        <th>Name</th>
+        <th>Lastname</th>
+        <th>Login</th>
+        <th>UID</td>
+        <th>Mail</td>
+        <th>SMIME</td>
+        <th>CSR</td>
+        <th>Cert. Sent</td>
+    </tr>
+    <!-- Table rows -->
+    {% for student in students %}
+    <tr>
+        <td> {{ student.name }} </td>
+        <td> {{ student.lastname }} </td>
+        <td> {{ student.login }} </td>
+        <td> {{ student.uid }} </td>
+        
+        {% if student.mail_status == "NOK" %}
+            <td>
+                <span  style="color:#c7254e">{{ student.mail_status }}</span>
+                <button class="btn btn-default btn-xs" type="button" style="margin-left:10px;"> btn_text </button>
+            </td>
+        {% else %}
+            <td style="color:#4cae4c"> {{ student.mail_status }} </td>
+        {% endif %}
+
+        {% if student.smime_status == "NOK" %}
+            <td style="color:#c7254e"> {{ student.smime_status }} </td>
+        {% else %}
+            <td> {{ student.smime_status }} </td>
+        {% endif %}
+
+        {% if student.csr_status == "NOK" %}
+            <td style="color:#c7254e"> {{ student.csr_status }} </td>
+        {% else %}
+            <td> {{ student.csr_status }} </td>
+        {% endif %}
+
+        {% if student.certsent_status == "NOK" %}
+            <td style="color:#c7254e"> {{ student.certsent_status }} </td>
+        {% else %}
+            <td> {{ student.certsent_status }} </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Le javascript -->
+<script type="text/javascript">
+    
+    // Change text of dropdown menu value
+    function changeText(txt)
+    {
+        $('#drop_course').text(txt);
+    }
+
+{% endblock %}

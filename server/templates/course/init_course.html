@@ -1,0 +1,156 @@
+{% extends 'course/base.html' %}
+{% block content %}
+<div style="float:left;">
+    <h3>Course - Init a new course</h3>
+    <hr>
+    
+    {% if message %}
+        <p>
+            {{ message }}
+        </p>
+    {% endif %}
+
+    <form id="initcourse_ajax" enctype="multipart/form-data" class="form-inline" style="margin-top:10px; margin-bottom:10px;" method="post" role="form">
+        <div class="form-group" style="margin-right:20px; width:90px;">
+            <strong>Upload .csv</strong>
+        </div>
+        <div class="form-group">
+            <input type="file" name="ois_file">
+        </div>
+        <button type="button" class="btn btn-default" onclick="uploadStudents()">Check File</button>
+    </form>
+
+    <div style="margin-top:10px;">
+        <strong style="width:70px;">Uploaded file:</strong> <span style="padding-left:10px;" id="uploadedFileName"></span>
+    </div>
+
+    <div class="dropdown">
+        <strong style="width:70px;">Select course: </strong>
+        <a id="drop4" role="button" data-toggle="dropdown" href="#" style="margin-left:10px;">Courses<b class="caret"></b></a>
+
+        <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">
+            {% for element in courses %}
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="changeText('{{ element.name }}')">{{ element.name | safe }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <hr>
+    <div>
+        <button id="btnInit" class="btn btn-primary" disabled="disabled" onclick="initCourse()">Click here to init course</button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    
+    // Init submit result
+    function initResult(result)
+    {
+        var json = JSON.parse(result);
+        
+        if (json.status === "success")
+        {
+            window.location.href = "{{ url_for('course.students') }}" + "/" + $('#drop4').text().replace(" ", "_").replace("Spring", "spr").replace("Autumn", "aut");
+        }
+        else
+        {
+            alert(json.error_msg);
+        }
+    }
+
+    // Init course btn
+    function initCourse()
+    {
+        // Submit the same form with course time
+        var form = $('#initcourse_ajax');
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'course_time';
+        input.value = $('#drop4').text();
+        form.append(input);
+
+        form.ajaxSubmit({
+            url     : "{{ url_for('course.init_course_final') }}",
+            type    : "post",
+            success : function(data) 
+            {
+                initResult(data);
+            },
+            failure : function(data)
+            {
+                initResult(data);
+            }
+        
+        })
+    }
+
+
+    // Button status check
+    function checkForButtonStatus()
+    {
+        var filename = $('#uploadedFileName');
+        var coursetime = $('#drop4');
+        var btn = $('#btnInit');
+
+        if (coursetime.text() === "Courses")
+        {
+            btn.attr('disabled', true);
+            return;
+        }
+
+        if (filename.text() === "" || filename.text().indexOf('None') > 0)
+        {
+            btn.attr('disabled', true);
+            return;
+        }
+
+        btn.attr('disabled', false);
+        return;
+    }
+    
+    // Change text of the dropdown shown value
+    function changeText(txt) 
+    {
+        $('#drop4').text(txt);
+        checkForButtonStatus();
+    }
+
+    // Parse the data
+    function parseAjaxResult(result) 
+    {
+        var json = JSON.parse(result);
+        var fileStatus = $('#uploadedFileName');
+        if (json.status === 'failure')
+        {
+            fileStatus.text("None - " + json.error_msg);
+            fileStatus.attr('style', 'color:#c7254e; margin-left:10px;');
+        }
+        else
+        {
+            fileStatus.text(json.filename + " (" + json.students_count + " lines)");
+            fileStatus.attr('style', 'margin-left:10px;')
+        }
+
+        checkForButtonStatus();
+    }
+
+    // Upload students - ajax
+    function uploadStudents() 
+    {
+        $('#initcourse_ajax').ajaxSubmit({
+            url     : "{{ url_for('course.init_course_ajax') }}",
+            type    : "post",
+            success : function(data) 
+            {
+                parseAjaxResult(data);
+            },
+            failure : function(data)
+            {
+                parseAjaxResult(data);
+            }
+        });
+    }
+</script>
+{% endblock %}
